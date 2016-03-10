@@ -213,10 +213,11 @@ protected:
             }
             _decrease(parent);
             unused_nodes.push(node);
-            bool balanced = nodes[root_node].tree_size <= a * max_size;
+            bool balanced = nodes[root_node].tree_size > a * max_size;
             if(!balanced)
             {
                 _rebalance(root_node);
+                max_size = nodes[root_node].tree_size;
             }
             return;
         }
