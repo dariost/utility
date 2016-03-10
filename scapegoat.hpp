@@ -145,7 +145,7 @@ protected:
     }
     void _insert(const T& v)
     {
-        if(!nodes.size())
+        if(!nodes.size() || (nodes.size() == unused_nodes.size()))
         {
             root_node = _get_free_node(v);
             return;
@@ -203,6 +203,11 @@ protected:
         if(nodes[node].left_child == -1 && nodes[node].right_child == -1)
         {
             int parent = nodes[node].parent;
+            if(parent == -1)
+            {
+                unused_nodes.push(node);
+                return;
+            }
             if(node == nodes[parent].left_child)
             {
                 nodes[parent].left_child = -1;
@@ -248,7 +253,7 @@ public:
     }
     bool find(const T& v)
     {
-        return nodes.size() && (_find(v, root_node) != -1);
+        return nodes.size() && (nodes.size() != unused_nodes.size()) && (_find(v, root_node) != -1);
     }
     bool insert(const T& v)
     {
@@ -266,17 +271,11 @@ public:
         if(node == -1)
             return false;
         _erase(node);
-        if(nodes.size() == unused_nodes.size())
-        {
-            nodes.clear();
-            while(!unused_nodes.empty())
-                unused_nodes.pop();
-        }
         return true;
     }
     size_t size()
     {
-        if(nodes.size() == 0)
+        if(nodes.size() == 0 || (nodes.size() == unused_nodes.size()))
             return 0;
         return nodes[root_node].tree_size;
     }
