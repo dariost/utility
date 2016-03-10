@@ -12,7 +12,6 @@
 #include <cmath>
 #include <cassert>
 #include <algorithm>
-#include <iostream>
 
 namespace ostuni {
 
