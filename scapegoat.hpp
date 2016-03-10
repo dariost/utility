@@ -12,6 +12,7 @@
 #include <cmath>
 #include <cassert>
 #include <algorithm>
+#include <iostream>
 
 namespace ostuni {
 
@@ -113,24 +114,26 @@ protected:
         if(s == e)
             return;
         int m = (s + e) / 2;
-        nodes[m].left_child = -1;
-        nodes[m].right_child = -1;
-        nodes[m].parent = parent;
-        nodes[m].tree_size = e - s;
+        nodes[r[m]].left_child = -1;
+        nodes[r[m]].right_child = -1;
+        nodes[r[m]].parent = parent;
+        nodes[r[m]].tree_size = e - s;
+        if(parent == -1)
+            root_node = r[m];
         if(left)
         {
             if(parent != -1)
-                nodes[parent].left_child = m;
+                nodes[parent].left_child = r[m];
         }
         else
         {
             if(parent != -1)
-                nodes[parent].right_child = m;
+                nodes[parent].right_child = r[m];
         }
         if(s == e - 1)
             return;
-        _rr(s, m, r, m, true);
-        _rr(m, e, r, m, false);
+        _rr(s, m, r, r[m], true);
+        _rr(m + 1, e, r, r[m], false);
     }
     void _rebalance(int node)
     {
@@ -235,7 +238,7 @@ protected:
         }
     }
 public:
-    scapegoat(double balance_factor = 0.66, bool verb = false)
+    scapegoat(double balance_factor = 0.66)
     {
         assert(balance_factor > 0.5 && balance_factor < 1.0);
         a = balance_factor;
