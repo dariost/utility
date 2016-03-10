@@ -140,7 +140,7 @@ protected:
         int scp_parent = nodes[node].parent;
         std::vector<int> rebalanced;
         _inorder(node, rebalanced);
-        _rr(0, rebalanced.size(), rebalanced, scp_parent, scp == nodes[scp_parent].left_child);
+        _rr(0, rebalanced.size(), rebalanced, scp_parent, (scp_parent == -1) || (scp == nodes[scp_parent].left_child));
     }
     void _insert(const T& v)
     {
