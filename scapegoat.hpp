@@ -243,7 +243,7 @@ protected:
         }
     }
 public:
-    scapegoat(double balance_factor = 0.66)
+    scapegoat(double balance_factor = 2.0 / 3.0)
     {
         assert(balance_factor > 0.5 && balance_factor < 1.0);
         a = balance_factor;
