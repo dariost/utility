@@ -1,9 +1,9 @@
-/**
-*
-* License: Apache License 2.0
-* Author: Dario Ostuni <another.code.996@gmail.com>
-*
-**/
+/****************************************************
+*                                                   *
+* License: Apache License 2.0                       *
+* Author: Dario Ostuni <another.code.996@gmail.com> *
+*                                                   *
+****************************************************/
 
 #pragma once
 
