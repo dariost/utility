@@ -33,17 +33,17 @@ protected:
         }
     };
     std::shared_ptr<bst_node<T>> root;
-    std::shared_ptr<bst_node<T>> _search(const T& value, shared_ptr<bst_node<T>> node)
+    std::shared_ptr<bst_node<T>> _search(const T& value, std::shared_ptr<bst_node<T>> node)
     {
         if(!node)
-            return shared_ptr<bst_node<T>>();
+            return std::shared_ptr<bst_node<T>>();
         if(value == node->value)
             return node;
         if(value < node->value)
             return _search(value, node->left);
         return _search(value, node->right);
     }
-    void _erase(shared_ptr<bst_node<T>> node)
+    void _erase(std::shared_ptr<bst_node<T>> node)
     {
         if(!node->right && !node->left)
         {
