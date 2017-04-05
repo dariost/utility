@@ -7,18 +7,18 @@
 
 #pragma once
 
-#include <vector>
-#include <queue>
-#include <cmath>
-#include <cassert>
 #include <algorithm>
+#include <cassert>
+#include <cmath>
+#include <queue>
+#include <vector>
 
-namespace ostuni {
-
-template<typename T>
+namespace ostuni
+{
+template <typename T>
 class scapegoat;
 
-template<typename T>
+template <typename T>
 class _scapegoat_node
 {
 protected:
@@ -39,11 +39,12 @@ protected:
     {
         reset(v);
     }
+
 public:
     friend class scapegoat<T>;
 };
 
-template<typename T>
+template <typename T>
 class scapegoat
 {
 protected:
@@ -242,6 +243,7 @@ protected:
             _erase(rnode);
         }
     }
+
 public:
     scapegoat(double balance_factor = 2.0 / 3.0)
     {
@@ -279,5 +281,4 @@ public:
         return nodes[root_node].tree_size;
     }
 };
-
 }
