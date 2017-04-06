@@ -11,12 +11,14 @@
 #include <cassert>
 #include <cmath>
 #include <vector>
+#include <iostream>
+#include <tuple>
 
 namespace ostuni
 {
 using namespace std;
 
-static pair<double, vector<double>> tabsimplex(vector<vector<double>>& tableau)
+static tuple<double, vector<double>, vector<size_t>> tabsimplex(vector<vector<double>>& tableau)
 {
     for(size_t i = 0; i < tableau.size() - 1; i++)
     {
@@ -46,8 +48,124 @@ static pair<double, vector<double>> tabsimplex(vector<vector<double>>& tableau)
         if(ones == 1)
             base_variables[pos] = i;
     }
+    if(count(base_variables.begin(), base_variables.end(), -1))
+    {
+        size_t vars_to_add = tableau.size() - 1;
+        vector<double> add_gradient(vars_to_add + tableau[0].size());
+        vector<double> backup_gradient = tableau[0];
+        for(size_t i = 0; i < vars_to_add; i++)
+        {
+            add_gradient[i + tableau[0].size() - 1] = 1;
+        }
+        tableau[0] = add_gradient;
+        for(size_t i = 1; i < tableau.size(); i++)
+        {
+            vector<double> add_vars(vars_to_add);
+            add_vars[i - 1] = 1;
+            tableau[i].insert(tableau[i].end() - 1, add_vars.begin(), add_vars.end());
+        }
+        for(size_t i = 0; i < tableau[0].size(); i++)
+        {
+            double sum = 0;
+            for(size_t j = 1; j < tableau.size(); j++)
+            {
+                sum += tableau[j][i];
+            }
+            tableau[0][i] -= sum;
+        }
+        auto ret = tabsimplex(tableau);
+        if(get<0>(ret) != 0.0)
+            assert(!"Cannot find a valid starting point");
+        base_variables = get<2>(ret);
+        tableau[0] = backup_gradient;
+        if(any_of(base_variables.begin(), base_variables.end(), [&backup_gradient](const auto& x){return x >= backup_gradient.size() - 1;}))
+        {
+            for(int k = 0; k < (int)base_variables.size(); k++)
+            {
+                if(base_variables[k] < backup_gradient.size() - 1)
+                    continue;
+                bool all_zeroes = true;
+                size_t first_nonzero;
+                for(size_t j = 0; j < tableau[k + 1].size() - 1 - vars_to_add; j++)
+                {
+                    if(tableau[k + 1][j])
+                    {
+                        all_zeroes = false;
+                        first_nonzero = j;
+                        break;
+                    }
+                }
+                if(all_zeroes)
+                {
+                    base_variables.erase(base_variables.begin() + k);
+                    tableau.erase(tableau.begin() + k + 1);
+                    k--;
+                    continue;
+                }
+                size_t row_pivot = k;
+                size_t entering_var = first_nonzero;
+                double scaling_factor = tableau[row_pivot + 1][entering_var];
+                for(size_t i = 0; i < tableau[row_pivot + 1].size(); i++)
+                {
+                    tableau[row_pivot + 1][i] /= scaling_factor;
+                }
+                for(size_t i = 0; i < tableau.size(); i++)
+                {
+                    if(i == row_pivot + 1)
+                        continue;
+                    scaling_factor = tableau[i][entering_var];
+                    for(size_t j = 0; j < tableau[i].size(); j++)
+                    {
+                        tableau[i][j] = -scaling_factor * tableau[row_pivot + 1][j] + tableau[i][j];
+                    }
+                }
+                base_variables[row_pivot] = entering_var;
+            }
+        }
+        for(size_t i = 0; i < tableau.size(); i++)
+        {
+            tableau[i].erase(tableau[i].end() - 1 - vars_to_add, tableau[i].end() - 1);
+        }
+        tableau[0] = backup_gradient;
+        for(size_t i = 0; i < base_variables.size(); i++)
+        {
+            double scale_factor = tableau[0][base_variables[i]];
+            for(size_t j = 0; j < tableau[0].size(); j++)
+            {
+                tableau[0][j] -= scale_factor * tableau[i + 1][j];
+            }
+            cout << tableau << endl;
+        }
+    }
+    size_t cnt = 0;
     while(true)
     {
+#ifdef OSTUNI_DEBUG
+        cout << "Iteration #" << cnt++ << endl;
+        cout << "Value: " << -tableau[0].back() << endl;
+        cout << "CCR: [";
+        for(size_t i = 0; i < tableau[0].size() - 1; i++)
+        {
+            cout << tableau[0][i];
+            if(i != tableau[0].size() - 2)
+                cout << ", ";
+        }
+        cout << "]" << endl;
+        cout << "Variables: [";
+        vector<double> tmp_vars(tableau[0].size() - 1);
+        for(size_t i = 0; i < base_variables.size(); i++)
+        {
+            tmp_vars[base_variables[i]] = tableau[i + 1].back();
+        }
+        for(size_t i = 0; i < tmp_vars.size(); i++)
+        {
+            cout << tmp_vars[i];
+            if(i != tmp_vars.size() - 1)
+                cout << ", ";
+        }
+        cout << "]" << endl;
+        cout << endl;
+#endif
         auto it = find_if(tableau[0].begin(), tableau[0].end() - 1, [](const double& x) { return x < 0.0; });
         if(it == tableau[0].end() - 1)
             break;
@@ -95,6 +213,6 @@ static pair<double, vector<double>> tabsimplex(vector<vector<double>>& tableau)
     {
         vars[base_variables[i]] = tableau[i + 1].back();
     }
-    return make_pair(value, vars);
+    return make_tuple(value, vars, base_variables);
 }
 }
