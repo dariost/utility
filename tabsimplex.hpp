@@ -10,13 +10,27 @@
 #include <algorithm>
 #include <cassert>
 #include <cmath>
-#include <vector>
 #include <iostream>
 #include <tuple>
+#include <vector>
 
 namespace ostuni
 {
 using namespace std;
+
+template <typename T>
+static ostream& operator<<(ostream& o, const vector<T>& v)
+{
+    o << "[";
+    for(size_t i = 0; i < v.size(); i++)
+    {
+        o << v[i];
+        if(i != v.size() - 1)
+            o << ", ";
+    }
+    o << "]";
+    return o;
+}
 
 static tuple<double, vector<double>, vector<size_t>> tabsimplex(vector<vector<double>>& tableau)
 {
@@ -24,13 +38,21 @@ static tuple<double, vector<double>, vector<size_t>> tabsimplex(vector<vector<do
     {
         assert(tableau[i].size() == tableau[i + 1].size());
     }
+    for(size_t i = 1; i < tableau.size(); i++)
+    {
+        if(tableau[i].back() < 0.0)
+        {
+            for(size_t j = 0; j < tableau[i].size(); j++)
+                tableau[i][j] *= -1.0;
+        }
+    }
     vector<size_t> base_variables(tableau.size() - 1, -1);
-    for(size_t i = 0; i < tableau[0].size(); i++)
+    for(size_t i = 0; i < tableau[0].size() - 1; i++)
     {
         size_t ones = 0;
         size_t pos = 0;
         bool ok = true;
-        for(size_t j = 1; j < tableau.size(); j++)
+        for(size_t j = 0; j < tableau.size(); j++)
         {
             if(tableau[j][i] == 1.0)
             {
@@ -78,7 +100,9 @@ static tuple<double, vector<double>, vector<size_t>> tabsimplex(vector<vector<do
             assert(!"Cannot find a valid starting point");
         base_variables = get<2>(ret);
         tableau[0] = backup_gradient;
-        if(any_of(base_variables.begin(), base_variables.end(), [&backup_gradient](const auto& x){return x >= backup_gradient.size() - 1;}))
+        if(any_of(base_variables.begin(), base_variables.end(), [&backup_gradient](const size_t& x) {
+               return x >= backup_gradient.size() - 1;
+           }))
         {
             for(int k = 0; k < (int)base_variables.size(); k++)
             {
@@ -134,7 +158,6 @@ static tuple<double, vector<double>, vector<size_t>> tabsimplex(vector<vector<do
             {
                 tableau[0][j] -= scale_factor * tableau[i + 1][j];
             }
-            cout << tableau << endl;
         }
     }
     size_t cnt = 0;
@@ -214,5 +237,30 @@ static tuple<double, vector<double>, vector<size_t>> tabsimplex(vector<vector<do
         vars[base_variables[i]] = tableau[i + 1].back();
     }
     return make_tuple(value, vars, base_variables);
+}
+
+static void gausselim(vector<vector<double>>& tableau)
+{
+    for(size_t i = 1; i < tableau.size(); i++)
+    {
+        for(size_t j = i + 1; j < tableau.size(); j++)
+        {
+            double scale_factor = tableau[j][i - 1] / tableau[i][i - 1];
+            if(isnan(scale_factor) || isinf(scale_factor))
+                continue;
+            for(size_t k = i - 1; k < tableau[i].size(); k++)
+            {
+                tableau[j][k] -= scale_factor * tableau[i][k];
+            }
+        }
+    }
+    for(size_t i = 1; i < tableau.size(); i++)
+    {
+        if(count(tableau[i].begin(), tableau[i].end(), 0) == tableau[i].size())
+        {
+            tableau.erase(tableau.begin() + i);
+            i--;
+        }
+    }
 }
 }
