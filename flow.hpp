@@ -129,18 +129,13 @@ static T flow(size_t n, const std::vector<std::tuple<size_t, size_t, T>>& edges,
                 }
             }
             if(excess[node] > T(0))
-            {
                 relabel(node);
-            }
         }
     };
     height[source] = n;
     node_queue.add(source, height[source]);
     while(!node_queue.empty())
-    {
-        size_t node = node_queue.next();
-        discharge(node);
-    }
+        discharge(node_queue.next());
     return excess[sink];
 }
 
