@@ -28,9 +28,9 @@ protected:
     public:
         size_t index;
         size_t label;
-        bool operator >(const node& o) const
+        bool operator <(const node& o) const
         {
-            return this->label > o.label;
+            return this->label < o.label;
         }
         node(size_t in, size_t la)
         {
@@ -38,7 +38,7 @@ protected:
             label = la;
         }
     };
-    std::priority_queue<node, std::vector<node>, std::greater<node>> pq;
+    std::priority_queue<node> pq;
 public:
     void add(size_t index, size_t label)
     {
@@ -80,7 +80,7 @@ public:
 
 }
 
-template<typename T, typename U = policy::fifo>
+template<typename T, typename U = policy::max_label>
 static T flow(size_t n, const std::vector<std::tuple<size_t, size_t, T>>& edges, size_t source, size_t sink)
 {
     using namespace std;
