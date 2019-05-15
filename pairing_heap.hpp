@@ -82,6 +82,16 @@ template <typename T> class pairing_heap {
         return merge_pairs(child);
     }
 
+    static pairing_heap<T>* remove_top_nodelete(pairing_heap<T>* a) {
+        if(!a)
+            return nullptr;
+        pairing_heap<T>* child = a->child;
+        if(child)
+            child->prev = nullptr;
+        a->next = a->prev = a->child = nullptr;
+        return merge_pairs(child);
+    }
+
     static pairing_heap<T>* decrease_key(pairing_heap<T>* root,
                                          pairing_heap<T>* node,
                                          const T& new_value) {
