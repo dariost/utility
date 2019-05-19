@@ -5,9 +5,9 @@
  *                                                   *
  ****************************************************/
 
-#include <cassert>
-
 #pragma once
+
+#include <cassert>
 
 namespace ostuni {
 
