@@ -11,7 +11,8 @@
 
 namespace ostuni {
 
-template <typename T> class pairing_heap {
+template <typename T>
+class pairing_heap {
   protected:
     T value;
     pairing_heap<T>* next;
@@ -33,8 +34,7 @@ template <typename T> class pairing_heap {
     }
 
   public:
-    pairing_heap(const T& _value = T(), pairing_heap<T>* _next = nullptr,
-                 pairing_heap<T>* _prev = nullptr,
+    pairing_heap(const T& _value = T(), pairing_heap<T>* _next = nullptr, pairing_heap<T>* _prev = nullptr,
                  pairing_heap<T>* _child = nullptr) {
         value = _value;
         next = _next;
@@ -68,9 +68,7 @@ template <typename T> class pairing_heap {
         return upper;
     }
 
-    static pairing_heap<T>* insert(pairing_heap<T>* a, const T& v) {
-        return merge(a, new pairing_heap<T>(v));
-    }
+    static pairing_heap<T>* insert(pairing_heap<T>* a, const T& v) { return merge(a, new pairing_heap<T>(v)); }
 
     static pairing_heap<T>* remove_top(pairing_heap<T>* a) {
         if(!a)
@@ -92,9 +90,7 @@ template <typename T> class pairing_heap {
         return merge_pairs(child);
     }
 
-    static pairing_heap<T>* decrease_key(pairing_heap<T>* root,
-                                         pairing_heap<T>* node,
-                                         const T& new_value) {
+    static pairing_heap<T>* decrease_key(pairing_heap<T>* root, pairing_heap<T>* node, const T& new_value) {
         assert(!(top(node) < new_value));
         node->value = new_value;
         if(!node->prev) {
